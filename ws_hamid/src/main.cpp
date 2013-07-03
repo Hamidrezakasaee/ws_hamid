@@ -13,7 +13,7 @@ double _pos_y;
 void chatterCallback(const ws_referee::custom::ConstPtr& msg_in)
 {
   //ROS_INFO("%s: I heard: [%s]", _name.c_str(),msg_in->data.c_str());
-    ROS_INFO("%s: I WIIL BE WINNER");
+    ROS_INFO("\n I WIIL BE WINNER");
   //std_msgs::String  msg_out;
   //msg_out.data = "hello world";
   //chatter_pub.publish(msg_out);
