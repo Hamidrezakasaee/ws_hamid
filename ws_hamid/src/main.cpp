@@ -58,6 +58,14 @@ void chatterCallback(const ws_referee::custom::ConstPtr& msg_in)
 	marker.color.b = 0.0;
 	marker_pub.publish( marker );
 
+    // a new text marker
+    marker.id = 1;
+    marker.color.r = 0.5;
+    marker.pose.position.x = _pos_x - 0.3;
+    marker.type = visualization_msgs::Marker::TEXT_VIEW_FACING;
+    marker.text = "hamid";
+    marker_pub.publish( marker );
+
 }
 
 int main(int argc, char **argv)
