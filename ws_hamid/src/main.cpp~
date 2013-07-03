@@ -29,7 +29,6 @@ void chatterCallback(const ws_referee::custom::ConstPtr& msg_in)
   //Publish new msg
   ws_referee::custom msg_out;
   msg_out.sender = _name;
-
   msg_out.dist=get_random_num();
 
   if (msg_out.winner!="")
@@ -50,7 +49,7 @@ void chatterCallback(const ws_referee::custom::ConstPtr& msg_in)
  else
    {
       msg_out.winner = "";
-      msg_out.dist = get_random_num(0, 0.1); 
+      msg_out.dist = get_random_num(); 
    }
 
 
