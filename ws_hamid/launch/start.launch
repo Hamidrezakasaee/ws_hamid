@@ -7,8 +7,8 @@
 
 
 	<node pkg="ws_hamid" type="ws_hamid" name="hamid" output="screen" required="false">
-		<remap from="player_in" to="ws_g"/>
-		<remap from="player_out" to="ws_v"/>
+		<remap from="player_in" to="$(arg player_in)"/>
+		<remap from="player_out" to="$(arg player_out)"/>
 
 		<!--param loading-->
 		<!--<param name="initial_object_pc_path" value="$(arg initial_object_pc_path)"/>-->
