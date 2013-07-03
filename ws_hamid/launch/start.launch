@@ -1,10 +1,12 @@
 <?xml version="1.0"?>
 <!-- This is the launch file for launching ws_mike -->
 <launch>
-<!--<arg name="use_nodelets" default="0"/> [> this flag will configure a nodes or nodelets based system<]-->
+<arg name="player_in" default="ws_g"/> 
+<arg name="player_out" default="ws_v"/> 
 
 
-	<node pkg="ws_hamid" type="ws_hamid" name="hamid" output="screen" required="true">
+
+	<node pkg="ws_hamid" type="ws_hamid" name="hamid" output="screen" required="false">
 		<remap from="player_in" to="ws_g"/>
 		<remap from="player_out" to="ws_v"/>
 
