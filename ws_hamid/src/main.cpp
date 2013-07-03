@@ -39,7 +39,7 @@ void chatterCallback(const ws_referee::custom::ConstPtr& msg_in)
      should_quit=true;
      }
 
-  else if (_pos_x>=5)
+  else if (_pos_x>5)
    {
      ROS_INFO("\n\n I WON - HAMID \n\n");
      msg_out.winner="Hamid";
@@ -87,6 +87,12 @@ void chatterCallback(const ws_referee::custom::ConstPtr& msg_in)
     marker.type = visualization_msgs::Marker::TEXT_VIEW_FACING;
     marker.text = "hamid";
     marker_pub.publish( marker );
+
+if (should_quit==true)
+	{
+		ROS_INFO("%s: I will shutdown",_name.c_str());
+		ros::shutdown();
+	}
 
 }
 

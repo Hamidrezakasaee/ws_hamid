@@ -33,13 +33,13 @@ void chatterCallback(const ws_referee::custom::ConstPtr& msg_in)
 
   if (msg_out.winner!="")
     {
-     ROS_INFO("\n\n I will be WINNER - HAMID \n\n");
+     ROS_INFO("\n\n ------------ \n\n");
      msg_out.winner = msg_in->winner;
      msg_out.dist = 0;
      should_quit=true;
      }
 
-  else if (_pos_x==5)
+  else if (_pos_x>5)
    {
      ROS_INFO("\n\n I WON - HAMID \n\n");
      msg_out.winner="Hamid";
