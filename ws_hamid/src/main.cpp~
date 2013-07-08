@@ -12,7 +12,7 @@
 
 
 //Gloabal variable
-std::string _name="_hamid";
+std::string _name="hamid";
 std::string _police_player="vahid";
 ros::Publisher chatter_pub;
 ros::Publisher marker_pub;
@@ -93,7 +93,7 @@ void chatterCallback(const ws_referee::custom::ConstPtr& msg_in)
     
   //send transform 
   transform= tf_1;
-   br->sendTransform(tf::StampedTransform(transform, ros::Time::now(), "world", "tf"+_name));
+   br->sendTransform(tf::StampedTransform(transform, ros::Time::now(), "world", "tf_"+_name));
     
     
   //_pos_x+=msg_in->dist;
@@ -132,7 +132,7 @@ void chatterCallback(const ws_referee::custom::ConstPtr& msg_in)
 
 //marker value 
 	visualization_msgs::Marker marker;
-	marker.header.frame_id = "tf"+_name;
+	marker.header.frame_id = "tf_"+_name;
 	marker.header.stamp = ros::Time();
 	marker.ns = "";
 	marker.id = 0;
@@ -167,7 +167,7 @@ void chatterCallback(const ws_referee::custom::ConstPtr& msg_in)
 
   //transform.setOrigin( tf::Vector3(_pos_x, _pos_y, 0.0) );
   //transform.setRotation( tf::Quaternion(0,0,0,1));
-  br->sendTransform(tf::StampedTransform(transform, ros::Time::now(), "world", "tf"+_name));
+  br->sendTransform(tf::StampedTransform(transform, ros::Time::now(), "world", "tf_"+_name));
 
 if (should_quit==true)
 	{
@@ -213,12 +213,12 @@ int main(int argc, char **argv)
   ros::Time t = ros::Time::now();
   transform.setOrigin( tf::Vector3(_pos_x, _pos_y, 0.0) );
   transform.setRotation( tf::Quaternion(0,0,0,1));
-  br->sendTransform(tf::StampedTransform(transform, t, "world", "tf"+_name));
+  br->sendTransform(tf::StampedTransform(transform, t, "world", "tf_"+_name));
 
   tf::Transform tf_tmp;
   tf_tmp.setOrigin( tf::Vector3(0, 0.0, 0.0) );
   tf_tmp.setRotation( tf::Quaternion(0,0,0,1));
-  br->sendTransform(tf::StampedTransform(tf_tmp, t, "tf"+_name, "tf_tmp"+_name));
+  br->sendTransform(tf::StampedTransform(tf_tmp, t, "tf_"+_name, "tf_tmp"+_name));
 
 
   ros::spinOnce();
