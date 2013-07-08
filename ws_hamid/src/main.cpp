@@ -13,8 +13,11 @@
 
 //Gloabal variable
 std::string _name="hamid";
+std::string _police_player="vahid";
 ros::Publisher chatter_pub;
 ros::Publisher marker_pub;
+ros::ServiceClient* client;
+
 
 double _pos_x;
 double _pos_y;
@@ -33,9 +36,46 @@ void chatterCallback(const ws_referee::custom::ConstPtr& msg_in)
   //std_msgs::String  msg_out;
   //msg_out.data = "hello world";
   //chatter_pub.publish(msg_out);
+  
 
   ROS_INFO("%s: Received msg wit dist= %f", _name.c_str(), msg_in->dist);
+  
+  
+  // check fo the palayer in the field 
+   tf::StampedTransform tf_2;
+   bool be_a_police= true; 
+   
+    try
+    {
+        listener->lookupTransform("world", "tf_"+_police_player, ros::Time(0), tf_2);
+    }
+    catch(tf::TransformException ex)
+    {
+        ROS_ERROR("%s", ex.what());
+        be_a_police = false;
+    }
+    
 
+   if (be_a_police)
+    { 
+    if (!is_in_field (tf_2.getOrigin().x(),tf_2.getOrigin().x() ))
+    {
+       ROS_INFO("%s: I found that %s is out of the area will send him to the start point", _name.c_str(), _police_player.c_str());
+       ws_referee::MovePlayerTo srv;
+       srv.request.new_pos_x = -5;
+       srv.request.new_pos_y = 0;
+       srv.request.player_that_requested=_name;
+       
+       if (client->call(srv))
+       {
+       
+       }
+       else
+       { 
+         ROS_ERROR ("failed to call service ... ");
+       
+         }  
+   }
   tf::Transform tf_tmp;
   tf_tmp.setOrigin( tf::Vector3(msg_in->dist, 0.0, 0.0) );
   tf_tmp.setRotation( tf::Quaternion(0,0,get_random_deg()*M_PI/180,1));
@@ -136,7 +176,7 @@ if (should_quit==true)
 	}
 
 }
-
+}
 bool serviceCallback(ws_referee::MovePlayerTo::Request &req,ws_referee::MovePlayerTo::Response &res)
 {
    ROS_INFO("%s: Damn %s send to me X= %f, Y=%f", _name.c_str(), req.player_that_requested.c_str(), req.new_pos_x, req.new_pos_y);
@@ -158,6 +198,7 @@ int main(int argc, char **argv)
   ros::init(argc, argv, _name);
   ros::NodeHandle n;
   init_randomization_seed();
+  
   chatter_pub = n.advertise<ws_referee::custom>("player_out", 1);
   marker_pub = n.advertise<visualization_msgs::Marker>("hamid_marker", 1);
 
