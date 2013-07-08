@@ -79,12 +79,12 @@ void chatterCallback(const ws_referee::custom::ConstPtr& msg_in)
   tf::Transform tf_tmp;
   tf_tmp.setOrigin( tf::Vector3(msg_in->dist, 0.0, 0.0) );
   tf_tmp.setRotation( tf::Quaternion(0,0,get_random_deg()*M_PI/180,1));
-  br->sendTransform(tf::StampedTransform(tf_tmp, ros::Time::now(), "tf"+_name, "tf_tmp"+_name));	  
+  br->sendTransform(tf::StampedTransform(tf_tmp, ros::Time::now(), "tf"+_name, "tf_tmp_"+_name));	  
   
     // query tranform world to tf_tmp_vahid
     tf::StampedTransform tf_1;
     try{
-        listener->lookupTransform("world", "tf_tmp" + _name, ros::Time(0), tf_1);
+        listener->lookupTransform("world", "tf_tmp_" + _name, ros::Time(0), tf_1);
     }
     catch(tf::TransformException ex){
         ROS_ERROR("%s", ex.what());
@@ -218,7 +218,7 @@ int main(int argc, char **argv)
   tf::Transform tf_tmp;
   tf_tmp.setOrigin( tf::Vector3(0, 0.0, 0.0) );
   tf_tmp.setRotation( tf::Quaternion(0,0,0,1));
-  br->sendTransform(tf::StampedTransform(tf_tmp, t, "tf_"+_name, "tf_tmp"+_name));
+  br->sendTransform(tf::StampedTransform(tf_tmp, t, "tf_"+_name, "tf_tmp_"+_name));
 
 
   ros::spinOnce();
