@@ -4,6 +4,12 @@
 #include <ws_referee/custom.h>
 #include <ws_referee/randomize.h>
 #include <visualization_msgs/Marker.h>
+#include <tf/transform_broadcaster.h>
+#include <tf/transform_listener.h>
+#include <turtlesim/Pose.h>
+#include <ws_referee/MovePlayerTo.h>
+
+
 
 //Gloabal variable
 std::string _name="hamid";
@@ -13,7 +19,12 @@ ros::Publisher marker_pub;
 double _pos_x;
 double _pos_y;
 
+tf::TransformBroadcaster* br;
+tf::Transform transform;
+tf::TransformListener* listener;
+
 //void chatterCallback(const std_msgs::String::ConstPtr& msg_in)
+
 
 
 void chatterCallback(const ws_referee::custom::ConstPtr& msg_in)
@@ -24,8 +35,31 @@ void chatterCallback(const ws_referee::custom::ConstPtr& msg_in)
   //chatter_pub.publish(msg_out);
 
   ROS_INFO("%s: Received msg wit dist= %f", _name.c_str(), msg_in->dist);
-  _pos_x+=msg_in->dist;
+
+  tf::Transform tf_tmp;
+  tf_tmp.setOrigin( tf::Vector3(msg_in->dist, 0.0, 0.0) );
+  tf_tmp.setRotation( tf::Quaternion(0,0,get_random_deg()*M_PI/180,1));
+  br->sendTransform(tf::StampedTransform(tf_tmp, ros::Time::now(), "tf"+_name, "tf_tmp"+_name));	  
+  
+    // query tranform world to tf_tmp_vahid
+    tf::StampedTransform tf_1;
+    try{
+        listener->lookupTransform("world", "tf_tmp" + _name, ros::Time(0), tf_1);
+    }
+    catch(tf::TransformException ex){
+        ROS_ERROR("%s", ex.what());
+    }
+    
+    
+  //send transform 
+  transform= tf_1;
+   br->sendTransform(tf::StampedTransform(transform, ros::Time::now(), "world", "tf"+_name));
+    
+    
+  //_pos_x+=msg_in->dist;
    bool should_quit=false;
+
+
   //Publish new msg
   ws_referee::custom msg_out;
   msg_out.sender = _name;
@@ -52,20 +86,20 @@ void chatterCallback(const ws_referee::custom::ConstPtr& msg_in)
       msg_out.dist = get_random_num(); 
    }
 
-
-
   chatter_pub.publish(msg_out);
   ROS_INFO("%s: I'm at %f. will publish a message", _name.c_str(), _pos_x);
 
+
+//marker value 
 	visualization_msgs::Marker marker;
-	marker.header.frame_id = "world";
+	marker.header.frame_id = "tf"+_name;
 	marker.header.stamp = ros::Time();
 	marker.ns = "";
 	marker.id = 0;
 	marker.type = visualization_msgs::Marker::SPHERE;
 	marker.action = visualization_msgs::Marker::ADD;
-	marker.pose.position.x = _pos_x;
-	marker.pose.position.y = _pos_y;
+	marker.pose.position.x = 0;
+	marker.pose.position.y = 0;
 	marker.pose.position.z = 0;
 	marker.pose.orientation.x = 0.0;
 	marker.pose.orientation.y = 0.0;
@@ -83,12 +117,41 @@ void chatterCallback(const ws_referee::custom::ConstPtr& msg_in)
     // a new text marker
     marker.id = 1;
     marker.color.r = 0.5;
-    marker.pose.position.x = _pos_x - 0.3;
+    marker.pose.position.x = - 0.3;
     marker.type = visualization_msgs::Marker::TEXT_VIEW_FACING;
     marker.text = "hamid";
     marker_pub.publish( marker );
 
+
+// transformation 
+
+  //transform.setOrigin( tf::Vector3(_pos_x, _pos_y, 0.0) );
+  //transform.setRotation( tf::Quaternion(0,0,0,1));
+  br->sendTransform(tf::StampedTransform(transform, ros::Time::now(), "world", "tf"+_name));
+
+if (should_quit==true)
+	{
+		ROS_INFO("%s: I will shutdown",_name.c_str());
+		ros::shutdown();
+	}
+
 }
+
+bool serviceCallback(ws_referee::MovePlayerTo::Request &req,ws_referee::MovePlayerTo::Response &res)
+{
+   ROS_INFO("%s: Damn %s send to me X= %f, Y=%f", _name.c_str(), req.player_that_requested.c_str(), req.new_pos_x, req.new_pos_y);
+
+   
+   // send the transformation 
+   transform.setOrigin( tf::Vector3(req.new_pos_x, req.new_pos_y, 0.0) );
+   transform.setRotation( tf::Quaternion(0, 0, 0, 1) );
+   br->sendTransform(tf::StampedTransform(transform, ros::Time::now(), "world", "tf_" + _name ));
+   
+   res.reply("I will have my revenge!");
+   return true;
+}
+
+
 
 int main(int argc, char **argv)
 {
@@ -98,12 +161,41 @@ int main(int argc, char **argv)
   chatter_pub = n.advertise<ws_referee::custom>("player_out", 1);
   marker_pub = n.advertise<visualization_msgs::Marker>("hamid_marker", 1);
 
+  br =(tf::TransformBroadcaster*)new (tf::TransformBroadcaster);
+  listener= (tf::TransformListener*) new (tf::TransformListener);
+
    init_randomization_seed();
-  _pos_x=0;
+  _pos_x=-5;
   _pos_y=3;
+
+//set teransformation 
+  ros::Time t = ros::Time::now();
+  transform.setOrigin( tf::Vector3(_pos_x, _pos_y, 0.0) );
+  transform.setRotation( tf::Quaternion(0,0,0,1));
+  br->sendTransform(tf::StampedTransform(transform, t, "world", "tf"+_name));
+
+  tf::Transform tf_tmp;
+  tf_tmp.setOrigin( tf::Vector3(0, 0.0, 0.0) );
+  tf_tmp.setRotation( tf::Quaternion(0,0,0,1));
+  br->sendTransform(tf::StampedTransform(tf_tmp, t, "tf"+_name, "tf_tmp"+_name));
+
+
+  ros::spinOnce();
+  ros::Duration(0.3).sleep();
+
+  //at time now
+  transform.setOrigin( tf::Vector3(0, 0.0, 0.0) );
+  transform.setRotation( tf::Quaternion(0, 0, 0, 1) );
+  br->sendTransform(tf::StampedTransform(transform, ros::Time::now(), "world", "tf_" + _name ));
+
+  tf_tmp.setOrigin( tf::Vector3(0, 0.0, 0.0) );
+  tf_tmp.setRotation( tf::Quaternion(0, 0, 0, 1) );
+  br->sendTransform(tf::StampedTransform(tf_tmp, ros::Time::now(), "tf_" + _name, "tf_tmp_" + _name ));
+
 
   ros::Subscriber sub = n.subscribe("player_in", 1, chatterCallback);
   ros::Rate loop_rate(2);
+
   ROS_INFO("%s: Hamid Node Started", _name.c_str());
 
   int count = 0;

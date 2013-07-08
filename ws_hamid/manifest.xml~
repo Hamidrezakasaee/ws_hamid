@@ -1,0 +1,19 @@
+<package>
+  <description brief="ws_hamid">
+
+     ws_hamid
+
+  </description>
+  <author>hamidreza</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/ws_hamid</url>
+  <depend package="roscpp"/>
+  <depend package="std_msgs"/>
+  <depend package="ws_referee"/>
+  <depend package="rviz"/>
+  </package>
+
+</package>
+
+
